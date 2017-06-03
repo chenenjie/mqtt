@@ -1,6 +1,6 @@
 extern crate bytes;
 
-mod packet;
+pub mod packet;
 
 #[cfg(test)]
 mod tests {

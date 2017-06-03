@@ -1,4 +1,6 @@
 use super::FixHeader;
+use super::TopicName;
+use super::MqttPacketCodec;
 
 
 struct ProtocolName(pub String);
@@ -17,7 +19,6 @@ struct ConnectFlag{
 
 struct KeepAlive(pub u16);
 
-struct TopicName(pub String);
 
 #[derive(Debug)]
 struct ConnectPackectPayload {
@@ -37,6 +38,15 @@ struct ConnectPackect {
     payload: ConnectPackectPayload,
 }
 
+impl MqttPacketCodec for ConnectPackect{
+    type Error;
+    fn decode(bytes: BytesMut) -> Result<Self, Self::Error> {
+                
+    }
 
+    fn encode(&self) -> Result<BytesMut, Self::Error> {
+
+    }
+}
 
 

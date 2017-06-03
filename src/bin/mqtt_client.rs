@@ -2,6 +2,7 @@ extern crate tokio_io;
 extern crate tokio_core;
 extern crate bytes;
 extern crate futures;
+extern crate mqtt;
 
 use tokio_core::reactor::Core;
 use tokio_core::net::TcpStream;
@@ -9,6 +10,7 @@ use std::sync::mpsc::channel;
 use std::io;
 use bytes::BytesMut;
 use tokio_io::codec::{Framed, Encoder, Decoder};
+use mqtt::packet::FixHeader;
 
 
 struct MqttPacket {
