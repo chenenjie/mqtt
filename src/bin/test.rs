@@ -54,6 +54,23 @@ fn test() {
     //let chain = Chain::new(1i32, 2i32);
 }
 
+enum OptionEnum {
+    FuckError(String)
+}
 fn main(){
+    use bytes::BytesMut;
+    use bytes::BufMut;
+
+    let mut a = BytesMut::from(&b"hello"[..]);
+    let mut b = a.split_to(3);
+    let c = return_error();
+    c.fuck();
+    println!("{:?}", b);
+    println!("{}",a.len());
+    assert_eq!(3, a.len());
     // let 
+}
+
+fn return_error() -> OptionEnum{
+    return OptionEnum::FuckError("enjie".to_owned());
 }

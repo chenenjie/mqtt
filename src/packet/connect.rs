@@ -2,6 +2,9 @@ use super::FixHeader;
 use super::TopicName;
 use super::MqttPacketCodec;
 
+enum ConnectPackectError{
+    ProtocolNameUnicodeError,    
+}
 
 struct ProtocolName(pub String);
 
@@ -49,4 +52,15 @@ impl MqttPacketCodec for ConnectPackect{
     }
 }
 
+impl MqttPacketCodec for ProtocolName {
+    type Error = ConnectPackectError::ProtocolNameUnicodeError;
+    fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
+        if bytes.len() < 2 {
+            return Err(ConnectPackectError::ProtocolNameUnicodeError)
+        }
 
+
+    }
+
+    fn encode(&self) -> Result<BytesMut, Self::Error>;
+}
