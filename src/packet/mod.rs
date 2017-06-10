@@ -1,4 +1,5 @@
 use bytes::BytesMut;
+use std::string::FromUtf8Error;
 
 trait MqttPacketCodec: Sized {
     type Error;
@@ -82,26 +83,62 @@ struct TopicName(pub String);
 
 struct PacketIdentifier(pub u16);
 
-enum PacketError{
+pub enum PacketError{
     StringDecodeError,
     StringUTF8ConvertError(FromUtf8Error)
 }
+
 impl MqttPacketCodec for String {
     type Error = PacketError;
     fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
         if bytes.len() < 2{
             return Err(PacketError::StringDecodeError)
-        }
+        };
         let len = {
-            let len_arr = *(bytes.split_to(2));
-            (len_arr[0] << 8 | len_arr) as u16
-        }
+            let len_arr = bytes.split_to(2);
+            let mut sum = 0u16;
+            sum = ((*len_arr)[0] as u16) & 0xFF << 8 | ((*len_arr)[1] as u16);
+            sum as usize
+        };
         if bytes.len() < len {
             return Err(PacketError::StringDecodeError)
-        }
-        String::from_utf8(bytes.split_to(len).to_vec()).map_err(|_| ,b)
+        };
+        String::from_utf8(bytes.split_to(len).to_vec()).map_err(PacketError::StringUTF8ConvertError)
         
     }
 
-    fn encode(&self) -> Result<BytesMut, Self::Error>;
+    fn encode(&self) -> Result<BytesMut, Self::Error> {
+        Ok(BytesMut::from(&b"enjie"[..]))
+    }
+}
+
+impl MqttPacketCodec for u8 {
+    type Error = PacketError;
+    fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
+        if bytes.len() < 1 {
+            return Err(PacketError::StringDecodeError)
+        }
+        Ok((*bytes.split_to(1))[0])
+    }
+
+    fn encode(&self) -> Result<BytesMut, Self::Error> {
+        Ok(BytesMut::from(&b"enjie"[..]))
+    }
+}
+
+impl MqttPacketCodec for u16 {
+    type Error = PacketError;
+    fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
+        if bytes.len() < 2 {
+            return Err(PacketError::StringDecodeError)
+        }
+        let o_byte = bytes.split_to(2);
+        let mut result = 0u16;
+        result = (((*o_byte)[0] as u16) & 0xFFFF << 8) | (((*o_byte)[1] as u16) & 0xFFFF); 
+        Ok(result)
+    }
+
+    fn encode(&self) -> Result<BytesMut, Self::Error> {
+        Ok(BytesMut::from(&b"enjie"[..]))
+    }
 }

@@ -62,12 +62,25 @@ fn main(){
     use bytes::BufMut;
 
     let mut a = BytesMut::from(&b"hello"[..]);
-    let mut b = a.split_to(3);
-    let c = return_error();
-    c.fuck();
-    println!("{:?}", b);
-    println!("{}",a.len());
-    assert_eq!(3, a.len());
+    // let mut b = a.split_to(3);
+    let mut b = {
+        if false {
+            Ok(a.split_to(3))
+        }else {
+            // if true{
+            //     return Err("enjie".to_owned());
+            // } 
+            Err("error".to_owned())
+        }
+    };
+    b.fuck();
+    // let c = return_error();
+    // c.fuck();
+    // println!("{}", char::from((*b)[0]));
+    // println!("{}", ((*b)[1] as char));
+    // println!("{}", ((*b)[2] as char));
+    // println!("{}",a.len());
+    // assert_eq!(3, a.len());
     // let 
 }
 
