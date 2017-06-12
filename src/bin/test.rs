@@ -73,7 +73,9 @@ fn main(){
             Err("error".to_owned())
         }
     };
-    b.fuck();
+    // b.fuck();
+    let d;
+    d = a.split_to(4);
     // let c = return_error();
     // c.fuck();
     // println!("{}", char::from((*b)[0]));

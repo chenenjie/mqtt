@@ -9,7 +9,29 @@ enum ConnectPackectError{
 
 struct ProtocolName(pub String);
 
+impl MqttPacketCodec for ProtocolName {
+    type Error = PacketError;
+    fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
+        Ok(ProtocolName(MqttPacketCodec::decode(bytes)?))
+    }
+
+    fn encode(&self) -> Result<BytesMut, Self::Error> {
+
+    }
+}
+
 struct ProtocolLevel(pub u8);
+
+impl MqttPacketCodec for ProtocolLevel {
+    type Error = PacketError;
+    fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
+        Ok(ProtocolLevel(MqttPacketCodec::decode(bytes)?))
+    }
+
+    fn encode(&self) -> Result<BytesMut, Self::Error> {
+
+    }
+}
 
 struct ConnectFlag{
     user_name: bool,
@@ -23,6 +45,16 @@ struct ConnectFlag{
 
 struct KeepAlive(pub u16);
 
+impl MqttPacketCodec for KeepAlive {
+    type Error = PacketError;
+    fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
+        Ok(KeepAlive(MqttPacketCodec::decode(bytes)?))
+    }
+
+    fn encode(&self) -> Result<BytesMut, Self::Error> {
+        
+    }
+}
 
 #[derive(Debug)]
 struct ConnectPackectPayload {
@@ -52,11 +84,58 @@ impl MqttPacketCodec for ConnectPackect{
         let keep_alive = MqttPacketCodec::decode(bytes)?;
         
         let client_identifier = MqttPacketCodec::decode(bytes)?;
-        // let will_topic = 
+        let will_topic = {
+            let top;
+            if connect_flag.will_flag{
+                top = Some(TopicName(MqttPacketCodec::decode(bytes)?));
+            }else{
+                top = None;
+            }
+            top
+        }; 
+        let will_message = {
+            let message;
+            if connect_flag.will_flag{
+                message = Some(MqttPacketCodec::decode(bytes)?);
+            }else{
+                message = None;
+            };
+            message
+        };
+        let user_name {
+            let name;
+            if connect_flag.user_name {
+                name = Some(MqttPacketCodec::decode(bytes)?);
+            }else {
+                name = None;
+            }
+            name
+        };
+        let password = {
+            let pw;
+            if connect_flag.password {
+                pw = Some(MqttPacketCodec::decode(bytes)?);
+            } else {
+                pw = none;
+            }
+            pw
+        };
+        let connect_payload = ConnectPackectPayload{
+            client_identifier: client_identifier,
+            will_message: will_message,
+            will_topic: will_topic,
+            user_name: user_name,
+            password: password,
+        }
         
-
-
-
+        ConnectPackect{
+            fix_header: fix_header,
+            protocol_name: protocol_name,
+            protocol_level: protocol_level,
+            connect_flag: connect_flag,
+            keep_alive: keep_alive,
+            payload:connect_payload,
+        }
     }
 
     fn encode(&self) -> Result<BytesMut, Self::Error> {

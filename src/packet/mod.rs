@@ -81,10 +81,22 @@ impl MqttPacketCodec for FixHeader {
 
 struct TopicName(pub String);
 
+impl MqttPacketCodec for TopicName{
+    type Error = PacketError;
+    fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error>{
+        Ok(TopicName(MqttPacketCodec::decode(bytes)?))
+    }
+
+    fn encode(&self) -> Result<BytesMut, Self::Error> {
+        Ok(BytesMut::from(&b"hello"[..]))
+    }
+}
+
 struct PacketIdentifier(pub u16);
 
 pub enum PacketError{
     StringDecodeError,
+    NumValidDecodeError,
     StringUTF8ConvertError(FromUtf8Error)
 }
 
@@ -92,7 +104,7 @@ impl MqttPacketCodec for String {
     type Error = PacketError;
     fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
         if bytes.len() < 2{
-            return Err(PacketError::StringDecodeError)
+            return Err(PacketError::NumValidDecodeError)
         };
         let len = {
             let len_arr = bytes.split_to(2);
@@ -101,7 +113,7 @@ impl MqttPacketCodec for String {
             sum as usize
         };
         if bytes.len() < len {
-            return Err(PacketError::StringDecodeError)
+            return Err(PacketError::NumValidDecodeError)
         };
         String::from_utf8(bytes.split_to(len).to_vec()).map_err(PacketError::StringUTF8ConvertError)
         
@@ -116,7 +128,7 @@ impl MqttPacketCodec for u8 {
     type Error = PacketError;
     fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
         if bytes.len() < 1 {
-            return Err(PacketError::StringDecodeError)
+            return Err(PacketError::NumValidDecodeError)
         }
         Ok((*bytes.split_to(1))[0])
     }
@@ -130,7 +142,7 @@ impl MqttPacketCodec for u16 {
     type Error = PacketError;
     fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
         if bytes.len() < 2 {
-            return Err(PacketError::StringDecodeError)
+            return Err(PacketError::NumValidDecodeError)
         }
         let o_byte = bytes.split_to(2);
         let mut result = 0u16;
@@ -140,5 +152,18 @@ impl MqttPacketCodec for u16 {
 
     fn encode(&self) -> Result<BytesMut, Self::Error> {
         Ok(BytesMut::from(&b"enjie"[..]))
+    }
+}
+
+impl MqttPacketCodec for Vec<u8> {
+
+    type Error = PacketError;
+
+    fn decode(bytes: &mut BytesMut) -> Result<Self, Self::Error> {
+
+    }
+
+    fn encode(&self) -> Result<BytesMut, Self::Error> {
+
     }
 }
